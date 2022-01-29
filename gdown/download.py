@@ -35,26 +35,22 @@ else:
 def get_url_from_gdrive_confirmation(contents):
     url = ""
     for line in contents.splitlines():
-        m = re.search(r'href="(\/uc\?export=download[^"]+)', line)
-        if m:
+        if m := re.search(r'href="(\/uc\?export=download[^"]+)', line):
             url = "https://docs.google.com" + m.groups()[0]
             url = url.replace("&amp;", "&")
             return url
-        m = re.search("confirm=([^;&]+)", line)
-        if m:
+        if m := re.search("confirm=([^;&]+)", line):
             confirm = m.groups()[0]
             url = re.sub(
                 r"confirm=([^;&]+)", r"confirm={}".format(confirm), url
             )
             return url
-        m = re.search('"downloadUrl":"([^"]+)', line)
-        if m:
+        if m := re.search('"downloadUrl":"([^"]+)', line):
             url = m.groups()[0]
             url = url.replace("\\u003d", "=")
             url = url.replace("\\u0026", "&")
             return url
-        m = re.search('<p class="uc-error-subcaption">(.*)</p>', line)
-        if m:
+        if m := re.search('<p class="uc-error-subcaption">(.*)</p>', line):
             error = m.groups()[0]
             raise RuntimeError(error)
 

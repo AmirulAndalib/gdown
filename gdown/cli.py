@@ -29,21 +29,21 @@ class _ShowVersionAction(argparse.Action):
 
 
 def file_size(argv):
-    if argv is not None:
-        m = re.match(r"([0-9]+)(GB|MB|KB|B)", argv)
-        if not m:
-            raise TypeError
-        size, unit = m.groups()
-        size = float(size)
-        if unit == "KB":
-            size *= 1024
-        elif unit == "MB":
-            size *= 1024 ** 2
-        elif unit == "GB":
-            size *= 1024 ** 3
-        elif unit == "B":
-            pass
-        return size
+    if argv is None:
+        return
+
+    m = re.match(r"([0-9]+)(GB|MB|KB|B)", argv)
+    if not m:
+        raise TypeError
+    size, unit = m.groups()
+    size = float(size)
+    if unit == "GB":
+        size *= 1024 ** 3
+    elif unit == "KB":
+        size *= 1024
+    elif unit == "MB":
+        size *= 1024 ** 2
+    return size
 
 
 def main():
@@ -92,14 +92,10 @@ def main():
     args = parser.parse_args()
 
     if args.output == "-":
-        if six.PY3:
-            args.output = sys.stdout.buffer
-        else:
-            args.output = sys.stdout
-
+        args.output = sys.stdout.buffer if six.PY3 else sys.stdout
     if args.id and not args.folder:
         url = "https://drive.google.com/uc?id={id}".format(id=args.url_or_id)
-    elif args.id and args.folder:
+    elif args.id:
         url = "https://drive.google.com/folders/{id}".format(id=args.url_or_id)
     else:
         url = args.url_or_id

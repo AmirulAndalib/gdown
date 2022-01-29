@@ -91,16 +91,17 @@ def cached_download(
         path = osp.join(cache_root, path)
 
     # check existence
-    if osp.exists(path) and not md5:
-        if not quiet:
-            print("File exists: {}".format(path))
-        return path
-    elif osp.exists(path) and md5:
-        try:
-            assert_md5sum(path, md5, quiet=quiet)
+    if osp.exists(path):
+        if not md5:
+            if not quiet:
+                print("File exists: {}".format(path))
             return path
-        except AssertionError as e:
-            print(e, file=sys.stderr)
+        else:
+            try:
+                assert_md5sum(path, md5, quiet=quiet)
+                return path
+            except AssertionError as e:
+                print(e, file=sys.stderr)
 
     # download
     lock_path = osp.join(cache_root, "_dl_lock")
@@ -114,10 +115,7 @@ def cached_download(
 
         if not quiet:
             msg = "Cached Downloading"
-            if path:
-                msg = "{}: {}".format(msg, path)
-            else:
-                msg = "{}...".format(msg)
+            msg = "{}: {}".format(msg, path) if path else "{}...".format(msg)
             print(msg, file=sys.stderr)
 
         download(url, temp_path, quiet=quiet, proxy=proxy, speed=speed)

@@ -20,8 +20,7 @@ def parse_url(url, warning=True):
         file_ids = query["id"]
         if len(file_ids) == 1:
             file_id = file_ids[0]
-    match = re.match(r"^/file/d/(.*?)/view$", parsed.path)
-    if match:
+    if match := re.match(r"^/file/d/(.*?)/view$", parsed.path):
         file_id = match.groups()[0]
 
     if warning and is_gdrive and not is_download_link:

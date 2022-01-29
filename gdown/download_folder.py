@@ -41,10 +41,6 @@ def get_folder_list(folder, quiet=False, use_cookies=True):
     folder_list: dict
         Returns the folder structure of the Google Drive folder.
     """
-    return_code = True
-
-    folder_list = {}
-
     folder_page = client.get(folder)
 
     if folder_page.status_code != 200:
@@ -80,15 +76,18 @@ def get_folder_list(folder, quiet=False, use_cookies=True):
 
     folder_contents = [] if folder_arr[0] is None else folder_arr[0]
 
-    folder_list["file_name"] = folder_soup.title.contents[0][:-15]
-    folder_list["file_id"] = folder[39:]
-    folder_list["file_type"] = folder_type
-    folder_list["file_contents"] = []
+    folder_list = {
+        'file_name': folder_soup.title.contents[0][:-15],
+        'file_id': folder[39:],
+        'file_type': folder_type,
+        'file_contents': [],
+    }
 
     folder_file_list = [i[0] for i in folder_contents]
     folder_name_list = [i[2] for i in folder_contents]
     folder_type_list = [i[3] for i in folder_contents]
 
+    return_code = True
     for file in range(len(folder_file_list)):
         if folder_type_list[file] != folder_type:
             if not quiet:
@@ -206,10 +205,7 @@ def download_folder(
     if not quiet:
         print("Retrieving folder list completed")
         print("Building directory structure")
-    if output is None:
-        output = Path.cwd()
-    else:
-        output = Path(output)
+    output = Path.cwd() if output is None else Path(output)
     directory_structure = get_directory_structure(
         folder_list,
         output / folder_list["file_name"],
